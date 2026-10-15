@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}PDF Notes &amp; Semantic RAG{% endblock %}
+{% block page_heading %}PDF Notes Assistant (Semantic RAG){% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column: Upload & Document QA Interface -->
+    <div class="col-lg-7">
+        <!-- 1. Document Question Answering (RAG) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-question-circle-fill text-primary me-2"></i>Ask Your Uploaded Study Notes</h6>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">RAG + Cosine Similarity</span>
+            </div>
+            <div class="card-body p-4">
+                <p class="small text-muted mb-3">
+                    Ask specific questions about your uploaded PDF notes. StudyBuddy retrieves the most relevant passages via semantic embeddings and synthesizes an answer with exact page citations.
+                </p>
+
+                <div class="mb-3">
+                    <label for="ragDocSelect" class="form-label small fw-semibold">Select Study Document</label>
+                    <select class="form-select" id="ragDocSelect">
+                        {% if documents %}
+                            {% for doc in documents %}
+                                <option value="{{ doc.id }}">{{ doc.filename }} ({{ doc.page_count }} pages)</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled selected>No documents uploaded yet. Upload a PDF below.</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="ragQuestionInput" class="form-label small fw-semibold">Your Question</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="ragQuestionInput" 
+                               placeholder="e.g. 'What is the definition of a binary heap according to these notes?'"
+                               {% if not documents %}disabled{% endif %}>
+                        <button class="btn btn-primary px-3 fw-semibold" id="ragAskBtn" {% if not documents %}disabled{% endif %}>
+                            <i class="bi bi-search me-1"></i> Ask Document
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Answer Display Container -->
+                <div id="ragAnswerCard" class="d-none mt-4 p-3 bg-light rounded border">
+                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-robot text-primary me-2"></i>Document Answer</h6>
+                    <div id="ragAnswerText" class="text-secondary small line-height-lg"></div>
+                    <div id="ragSourcesList" class="border-top pt-2 mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. PDF Upload Box -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>Upload New PDF Lecture Notes</h6>
+            </div>
+            <div class="card-body p-4">
+                <form id="uploadDocForm">
+                    <div class="mb-3">
+                        <label for="pdfFileInput" class="form-label small fw-semibold">Select PDF Document</label>
+                        <input class="form-control" type="file" id="pdfFileInput" accept=".pdf" required>
+                        <div class="form-text small">Accepted format: .pdf (Max size: 16 MB). PyMuPDF will extract text and index pages for semantic search.</div>
+                    </div>
+                    <div id="uploadStatus" class="mb-3"></div>
+                    <button type="submit" class="btn btn-primary fw-semibold" id="uploadDocBtn">
+                        <i class="bi bi-file-earmark-arrow-up me-1"></i> Process &amp; Index Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Uploaded Documents List & Summaries -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-collection-fill text-primary me-2"></i>My Uploaded Notes ({{ documents|length }})</h6>
+            </div>
+            <div class="card-body p-3 overflow-auto" style="max-height: 700px;">
+                {% if documents %}
+                    {% for doc in documents %}
+                    <div class="card mb-3 border shadow-none" id="doc-row-{{ doc.id }}">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf-fill text-danger fs-3 me-2"></i>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-truncate" style="max-width: 220px;" title="{{ doc.filename }}">
+                                            {{ doc.filename }}
+                                        </h6>
+                                        <div class="text-muted" style="font-size: 0.75rem;">
+                                            {{ doc.page_count }} pages &bull; {{ (doc.file_size / 1024) | round(1) }} KB &bull; {{ doc.created_at.strftime('%b %d') }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger border-0 delete-doc-btn" 
+                                        data-doc-id="{{ doc.id }}" data-doc-name="{{ doc.filename }}" title="Delete Document">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
+                            {% if doc.summary %}
+                            <div class="p-2 bg-light rounded mt-2">
+                                <div class="fw-semibold text-primary" style="font-size: 0.75rem;"><i class="bi bi-card-text me-1"></i>Executive Summary:</div>
+                                <p class="small text-muted mb-0 mt-1" style="font-size: 0.8rem;">{{ doc.summary }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if doc.get_key_points() %}
+                            <div class="mt-2">
+                                <div class="fw-semibold text-secondary" style="font-size: 0.75rem;"><i class="bi bi-check2-circle me-1"></i>Key Takeaways:</div>
+                                <ul class="small text-muted ps-3 mb-0 mt-1" style="font-size: 0.8rem;">
+                                    {% for pt in doc.get_key_points()[:3] %}
+                                    <li>{{ pt }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-folder-x fs-1 text-secondary"></i>
+                        <h6 class="mt-2 fw-semibold">No Documents Uploaded</h6>
+                        <p class="small text-muted">Upload a lecture PDF on the left to extract summaries and ask questions.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/documents.js') }}"></script>
+{% endblock %}

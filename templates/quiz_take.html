@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Taking Quiz: {{ quiz.title }}{% endblock %}
+{% block page_heading %}Quiz: {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <!-- Quiz Header Banner -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-2">{{ quiz.topic }}</span>
+                    <h4 class="fw-bold mb-1">{{ quiz.title }}</h4>
+                    <div class="text-muted small">
+                        <i class="bi bi-question-circle me-1"></i> {{ quiz.questions|length }} Multiple-Choice Questions &bull; Single Correct Answer
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Exit Quiz
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Questions Form -->
+        <form id="takeQuizForm">
+            <input type="hidden" id="quizIdInput" value="{{ quiz.id }}">
+
+            {% for q in quiz.questions %}
+            <div class="card shadow-sm border-0 mb-4 quiz-question-card" data-question-id="{{ q.id }}">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <span class="badge bg-secondary-subtle text-secondary fw-semibold">Question {{ loop.index }} of {{ loop.length }}</span>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="fw-semibold text-dark mb-4">{{ q.question_text }}</h5>
+
+                    <div class="d-flex flex-column gap-3">
+                        <!-- Option A -->
+                        <div>
+                            <input type="radio" class="btn-check quiz-option-radio" name="q_{{ q.id }}" id="q_{{ q.id }}_A" value="A" autocomplete="off">
+                            <label class="quiz-option-label w-100" for="q_{{ q.id }}_A">
+                                <span class="badge bg-light text-dark border me-3 px-2 py-1">A</span>
+                                <span>{{ q.option_a }}</span>
+                            </label>
+                        </div>
+
+                        <!-- Option B -->
+                        <div>
+                            <input type="radio" class="btn-check quiz-option-radio" name="q_{{ q.id }}" id="q_{{ q.id }}_B" value="B" autocomplete="off">
+                            <label class="quiz-option-label w-100" for="q_{{ q.id }}_B">
+                                <span class="badge bg-light text-dark border me-3 px-2 py-1">B</span>
+                                <span>{{ q.option_b }}</span>
+                            </label>
+                        </div>
+
+                        <!-- Option C -->
+                        <div>
+                            <input type="radio" class="btn-check quiz-option-radio" name="q_{{ q.id }}" id="q_{{ q.id }}_C" value="C" autocomplete="off">
+                            <label class="quiz-option-label w-100" for="q_{{ q.id }}_C">
+                                <span class="badge bg-light text-dark border me-3 px-2 py-1">C</span>
+                                <span>{{ q.option_c }}</span>
+                            </label>
+                        </div>
+
+                        <!-- Option D -->
+                        <div>
+                            <input type="radio" class="btn-check quiz-option-radio" name="q_{{ q.id }}" id="q_{{ q.id }}_D" value="D" autocomplete="off">
+                            <label class="quiz-option-label w-100" for="q_{{ q.id }}_D">
+                                <span class="badge bg-light text-dark border me-3 px-2 py-1">D</span>
+                                <span>{{ q.option_d }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Submit Action -->
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="card-body p-4 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm" id="submitQuizBtn">
+                        <i class="bi bi-check2-circle me-2"></i> Submit Quiz For Evaluation
+                    </button>
+                    <div class="text-muted small mt-2">Your answers will be automatically scored and reviewed with step-by-step explanations.</div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+{% endblock %}

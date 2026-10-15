@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy - Professional Project Presentation</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --primary-dark: #0a58ca;
+            --primary-light: #e7f1ff;
+            --accent: #0284c7;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+            --card-border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b1120;
+            color: var(--dark);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Presentation Canvas */
+        .deck-container {
+            width: 92vw;
+            max-width: 1200px;
+            height: 85vh;
+            max-height: 720px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Slide header & footer */
+        .slide-header {
+            padding: 24px 40px 12px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .slide-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slide-brand span {
+            color: var(--primary);
+        }
+
+        .slide-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .slide-body {
+            flex: 1;
+            padding: 32px 48px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-footer {
+            padding: 16px 40px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Slide Content Typography */
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--dark);
+        }
+
+        .slide-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .slide-subtitle {
+            font-size: 1.05rem;
+            color: var(--gray);
+            margin-bottom: 24px;
+        }
+
+        /* Slide Elements */
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .slide.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 14px;
+        }
+
+        .feature-card h4 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        /* Two Column Layout */
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: stretch;
+            height: 100%;
+        }
+
+        .highlight-box {
+            background: var(--light-bg);
+            border-left: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .highlight-box h4 {
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            color: var(--dark);
+        }
+
+        .highlight-box p {
+            font-size: 0.88rem;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        /* Data Tables */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin-top: 12px;
+        }
+
+        .styled-table th {
+            background: #f1f5f9;
+            color: var(--dark);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .styled-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--card-border);
+            color: #334155;
+        }
+
+        .styled-table tr.highlight-row {
+            background: #f0fdf4;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        /* Navigation Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background: var(--white);
+            border: 1px solid var(--card-border);
+            color: var(--dark);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Progress Bar */
+        .deck-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--primary);
+            width: 10%;
+            transition: width 0.3s ease;
+            z-index: 10;
+        }
+
+        /* Speaker notes drawer */
+        .notes-panel {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: auto;
+            font-size: 0.82rem;
+            color: #92400e;
+            display: none;
+        }
+
+        .notes-panel.visible {
+            display: block;
+        }
+
+        .notes-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notes-toggle-btn:hover {
+            color: var(--primary);
+        }
+
+        /* Title Slide Special */
+        .title-slide-content {
+            margin: auto 0;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .title-slide-content .main-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+
+        .title-slide-content .main-title span {
+            color: var(--primary);
+        }
+
+        .title-slide-content .main-desc {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 780px;
+            margin: 0 auto 32px auto;
+            line-height: 1.5;
+        }
+
+        .pill-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+
+        .pill {
+            background: var(--light-bg);
+            border: 1px solid var(--card-border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="deck-container">
+        <!-- Progress Bar -->
+        <div class="deck-progress" id="progressBar"></div>
+
+        <!-- Slide Header -->
+        <div class="slide-header">
+            <div class="slide-brand">
+                <i class="bi bi-mortarboard-fill text-primary"></i>
+                Study<span>Buddy</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="slide-badge" id="slideCategory">Introduction</span>
+            </div>
+        </div>
+
+        <!-- Slide Body Container -->
+        <div class="slide-body">
+
+            <!-- SLIDE 1: Title Slide -->
+            <div class="slide active" data-category="Title &amp; Overview">
+                <div class="title-slide-content">
+                    <div class="main-title">Study<span>Buddy</span></div>
+                    <p class="main-desc">
+                        An Intelligent Student Study Companion Combining Local Generative AI (RAG) &amp; Supervised Machine Learning Performance Forecasting
+                    </p>
+                    <div class="pill-tags">
+                        <span class="pill"><i class="bi bi-robot text-primary"></i> Local Ollama LLM</span>
+                        <span class="pill"><i class="bi bi-search text-info"></i> Semantic RAG (Sentence Transformers)</span>
+                        <span class="pill"><i class="bi bi-graph-up text-success"></i> Scikit-Learn Regression</span>
+                        <span class="pill"><i class="bi bi-shield-check text-warning"></i> Privacy-First &amp; Open Source</span>
+                    </div>
+                    <div style="font-size: 0.95rem; color: #475569; font-weight: 500;">
+                        College Project Technical Presentation &bull; B.Tech / B.E. / MCA Final Review
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> Welcome faculty and evaluators. Today, I am presenting StudyBuddy—a full-stack intelligent study assistant that integrates genuine Natural Language Processing, privacy-preserving Local AI, and classical Machine Learning on standard educational datasets.
+                </div>
+            </div>
+
+            <!-- SLIDE 2: Problem Statement & Motivation -->
+            <div class="slide" data-category="Motivation">
+                <h2 class="slide-title">The Academic Challenge &amp; Problem Statement</h2>
+                <p class="slide-subtitle">Why traditional study methods and generic cloud chatbots fall short for university students.</p>
+                
+                <div class="cards-grid">
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#fee2e2; color:#ef4444;"><i class="bi bi-file-earmark-x"></i></div>
+                        <h4>Information Overload</h4>
+                        <p>Students manage hundreds of pages of unindexed lecture slides, PDFs, and textbook chapters with no direct semantic search capability.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#fef3c7; color:#f59e0b;"><i class="bi bi-exclamation-triangle"></i></div>
+                        <h4>AI Hallucinations &amp; Cloud Leakage</h4>
+                        <p>Commercial cloud chatbots hallucinate facts without citations and expose private student assignment data to external corporate servers.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#ede9fe; color:#8b5cf6;"><i class="bi bi-graph-down"></i></div>
+                        <h4>Late Academic Setbacks</h4>
+                        <p>Students discover conceptual gaps only after midterm exam failures, lacking early-warning forecasting models to calibrate study hours.</p>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> We identified three critical gaps in modern college studying: information overload in static PDFs, lack of document citations and privacy issues with cloud LLMs, and the absence of data-driven early warning systems before final examinations.
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Project Objectives & Vision -->
+            <div class="slide" data-category="Objectives">
+                <h2 class="slide-title">Project Objectives &amp; System Capabilities</h2>
+                <p class="slide-subtitle">Core functional pillars engineered into the StudyBuddy architecture.</p>
+
+                <div class="two-cols">
+                    <div>
+                        <div class="highlight-box">
+                            <h4>1. Privacy-Preserving AI Study Chatbot</h4>
+                            <p>Runs locally via Ollama without cloud API subscriptions. Acts as an empathetic academic tutor explaining concepts step-by-step.</p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>2. PDF Notes Assistant with Semantic RAG</h4>
+                            <p>Extracts text via PyMuPDF, performs cosine similarity retrieval over embeddings, and cites precise page numbers with anti-hallucination guards.</p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>3. Automated 4-Choice MCQ Quiz Generator</h4>
+                            <p>Synthesizes topic/document-grounded questions with separated correct answers, auto-evaluation, and conceptual explanations.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="highlight-box" style="border-left-color: var(--success);">
+                            <h4>4. ML Early Academic Performance Forecasting</h4>
+                            <p>Trained on the UCI Student Performance benchmark to forecast final grade (G3) using study hours, class failures, and attendance patterns.</p>
+                        </div>
+                        <div class="highlight-box" style="border-left-color: var(--accent);">
+                            <h4>5. Transparent Rule-Based Recommendations</h4>
+                            <p>Analyzes diagnostic quiz attempts per topic to prescribe targeted revision pathways, retry quizzes, and matched lecture notes.</p>
+                        </div>
+                        <div class="highlight-box" style="border-left-color: #8b5cf6;">
+                            <h4>6. Interactive Analytics Dashboard</h4>
+                            <p>Chart.js-powered visual telemetry showing subject mastery distribution and score progression over time.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> StudyBuddy is designed across six integrated modules: authentic local LLM chat, verified document RAG with page citations, automated MCQ testing, early machine learning grade prediction, transparent recommendations, and live visual analytics.
+                </div>
+            </div>
+
+            <!-- SLIDE 4: Architecture & Technology Stack -->
+            <div class="slide" data-category="Architecture">
+                <h2 class="slide-title">System Architecture &amp; Technology Stack</h2>
+                <p class="slide-subtitle">A modular, decoupled full-stack design built for reliability and maintainability.</p>
+
+                <div class="cards-grid">
+                    <div class="feature-card">
+                        <div class="card-icon"><i class="bi bi-window-sidebar"></i></div>
+                        <h4>Frontend Layer</h4>
+                        <p><strong>HTML5, CSS3, JavaScript (ES6+)</strong>, responsive Bootstrap 5, custom clean blue-and-white theme, and <strong>Chart.js 4.4</strong> for dynamic radar and timeline charts.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon"><i class="bi bi-hdd-network"></i></div>
+                        <h4>Backend &amp; Persistence</h4>
+                        <p><strong>Python &amp; Flask 3.1</strong> application factory with modular Blueprints, REST API endpoints, <strong>SQLAlchemy 2.0</strong> ORM, and <strong>SQLite</strong> relational database.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon"><i class="bi bi-cpu"></i></div>
+                        <h4>AI &amp; Machine Learning</h4>
+                        <p><strong>Ollama (Llama 3.2)</strong>, <strong>PyMuPDF</strong> text extractor, <strong>Sentence Transformers (all-MiniLM-L6-v2)</strong>, and <strong>Scikit-Learn Random Forest Regressor</strong>.</p>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> Our tech stack prioritizes production-ready modularity: a lightweight Flask backend, isolated blueprints for security, SQLAlchemy ORM for relational tracking, and local AI engines for zero-cloud latency and zero privacy risk.
+                </div>
+            </div>
+
+            <!-- SLIDE 5: Student Authentication & Chatbot -->
+            <div class="slide" data-category="Modules 1 &amp; 2">
+                <h2 class="slide-title">Module 1 &amp; 2: Security &amp; AI Study Chatbot</h2>
+                <p class="slide-subtitle">Protecting student data and delivering pedagogical, multi-turn AI instruction.</p>
+
+                <div class="two-cols">
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#e0f2fe; color:#0284c7;"><i class="bi bi-shield-lock-fill"></i></div>
+                        <h4>Authentication &amp; User Isolation</h4>
+                        <ul style="padding-left: 20px; font-size: 0.88rem; color: #475569; line-height: 1.8;">
+                            <li><strong>PBKDF2:SHA256</strong> cryptographic password hashing via Werkzeug.</li>
+                            <li>Session-based access control with custom <code>@login_required</code> decorator.</li>
+                            <li>Strict database-level multi-tenancy: One student cannot read or query another student's uploaded notes, quizzes, or grade forecasts.</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#ede9fe; color:#8b5cf6;"><i class="bi bi-chat-quote-fill"></i></div>
+                        <h4>AI Study Chatbot Engine</h4>
+                        <ul style="padding-left: 20px; font-size: 0.88rem; color: #475569; line-height: 1.8;">
+                            <li>Instruction-following system prompting enforcing step-by-step concept derivations.</li>
+                            <li>Multi-turn memory: Retains the student's conversation history in SQLite for contextual continuity.</li>
+                            <li>Graceful resilience: Detects Ollama state and delivers informative setup guidance without crashes.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> In Module 1, security is guaranteed through PBKDF2 hashing and user-isolated database constraints. In Module 2, the AI Chatbot maintains conversation history and uses pedagogical prompting to break complex math and code into digestible steps.
+                </div>
+            </div>
+
+            <!-- SLIDE 6: PDF Notes Assistant & Semantic RAG -->
+            <div class="slide" data-category="Module 3">
+                <h2 class="slide-title">Module 3: PDF Notes Assistant (Semantic RAG)</h2>
+                <p class="slide-subtitle">Retrieval-Augmented Generation that eliminates hallucination through precise page citations.</p>
+
+                <div class="two-cols">
+                    <div>
+                        <div class="highlight-box">
+                            <h4>Step 1: Ingestion &amp; Page Tracking</h4>
+                            <p>PyMuPDF (<code>pymupdf</code>) parses uploaded PDFs, extracting clean textual content while retaining 1-indexed source page metadata.</p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>Step 2: Sliding Window Chunking</h4>
+                            <p>Text is partitioned into 500-character segments with a 100-character overlap to preserve semantic context across sentence boundaries.</p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>Step 3: Dense Vector Similarity</h4>
+                            <p>Query and chunk embeddings are generated via <code>all-MiniLM-L6-v2</code>; cosine similarity retrieves the top-4 relevant passages.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="feature-card" style="height: 100%; border-left: 4px solid var(--accent);">
+                            <h4>RAG Grounding &amp; Anti-Hallucination Guard</h4>
+                            <p style="margin-bottom: 16px;">The language model is strictly bound to the retrieved context passages:</p>
+                            <div style="background:#f1f5f9; padding: 14px; border-radius: 8px; font-family: monospace; font-size: 0.82rem; margin-bottom: 16px;">
+                                "Rule: If the provided notes do not contain enough facts to answer the question, state: 'The uploaded notes do not contain enough information to answer this question.'"
+                            </div>
+                            <p style="font-size: 0.88rem; color: #334155;">
+                                <strong>Output Verification:</strong> Answers cite specific source pages (e.g., <code>[Source Page 2]</code>), providing full academic auditability.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> Our RAG pipeline prevents AI hallucinations. When a student queries their notes, PyMuPDF and Sentence Transformers isolate the most relevant text chunks. If the answer is absent from their notes, the model explicitly refuses to fabricate facts.
+                </div>
+            </div>
+
+            <!-- SLIDE 7: AI Quiz Generator & Evaluation -->
+            <div class="slide" data-category="Module 4">
+                <h2 class="slide-title">Module 4: AI Quiz Generator &amp; Evaluation Hub</h2>
+                <p class="slide-subtitle">Automating diagnostic assessment and formative feedback for active recall.</p>
+
+                <div class="cards-grid">
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#e0f2fe; color:#0284c7;"><i class="bi bi-ui-checks"></i></div>
+                        <h4>Structured 4-Option MCQ Synthesis</h4>
+                        <p>Generates multiple-choice questions from any custom subject or uploaded PDF notes. Enforces exactly four distinct options (A, B, C, D) and a verified correct option.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#fee2e2; color:#ef4444;"><i class="bi bi-eye-slash-fill"></i></div>
+                        <h4>Anti-Cheating Answer Separation</h4>
+                        <p>Correct answers are segregated on the server. The exam API returns only question texts and options, preventing inspect-element inspection during test attempts.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#f0fdf4; color:#10b981;"><i class="bi bi-lightbulb-fill"></i></div>
+                        <h4>Instant Explanations &amp; Retries</h4>
+                        <p>Submissions are auto-scored into percentage marks. Each incorrect choice includes an academic explanation explaining why the correct choice holds.</p>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> The Quiz Hub encourages active recall. We enforce a robust 4-choice JSON schema, hide correct answers during test execution to prevent cheating, and provide pedagogical explanations for every question upon completion.
+                </div>
+            </div>
+
+            <!-- SLIDE 8: ML Performance Prediction -->
+            <div class="slide" data-category="Module 5">
+                <h2 class="slide-title">Module 5: Machine Learning Grade Prediction</h2>
+                <p class="slide-subtitle">Early-intervention academic forecasting trained on the UCI Student Performance benchmark.</p>
+
+                <div class="two-cols">
+                    <div>
+                        <h4 style="font-size: 1rem; margin-bottom: 8px;">Experimental Formulation</h4>
+                        <p style="font-size: 0.88rem; color: var(--gray); margin-bottom: 14px;">
+                            Predicting final examination grade <strong>G3 (0–20 scale)</strong> without intermediate grade leakage (G1 &amp; G2 strictly excluded).
+                        </p>
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>CV RMSE</th>
+                                    <th>Test MAE</th>
+                                    <th>Test RMSE</th>
+                                    <th>Test R²</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Linear Regression (Baseline)</td>
+                                    <td>4.3030</td>
+                                    <td>3.5606</td>
+                                    <td>4.4581</td>
+                                    <td>0.0307</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                    <td>Random Forest Regressor</td>
+                                    <td>4.1317</td>
+                                    <td>3.4194</td>
+                                    <td>4.2867</td>
+                                    <td>0.1038</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 1rem; margin-bottom: 8px;">Feature Importances (Random Forest)</h4>
+                        <div class="highlight-box" style="margin-bottom: 10px;">
+                            <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.85rem;">
+                                <span>Lecture Absences (absences)</span>
+                                <span>47.39%</span>
+                            </div>
+                        </div>
+                        <div class="highlight-box" style="margin-bottom: 10px;">
+                            <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.85rem;">
+                                <span>Past Class Failures (failures)</span>
+                                <span>39.98%</span>
+                            </div>
+                        </div>
+                        <div class="highlight-box" style="margin-bottom: 14px;">
+                            <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.85rem;">
+                                <span>Weekly Study Time (studytime)</span>
+                                <span>12.63%</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.82rem; color: #64748b; font-style: italic;">
+                            Model pipeline (StandardScaler + RandomForest) serialized using Joblib for real-time inference.
+                        </p>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> For machine learning, we utilized the UCI Student Performance benchmark. To ensure genuine early intervention, we strictly excluded intermediate exam scores G1 and G2. Random Forest outperformed Linear Regression across all metrics.
+                </div>
+            </div>
+
+            <!-- SLIDE 9: Recommendations & Dashboard Analytics -->
+            <div class="slide" data-category="Modules 6 &amp; 7">
+                <h2 class="slide-title">Modules 6 &amp; 7: Recommendations &amp; Analytics</h2>
+                <p class="slide-subtitle">Translating assessment logs into personalized study interventions and visual progress.</p>
+
+                <div class="two-cols">
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#fef3c7; color:#f59e0b;"><i class="bi bi-lightbulb-fill"></i></div>
+                        <h4>Personalized Recommendation Engine</h4>
+                        <ul style="padding-left: 20px; font-size: 0.88rem; color: #475569; line-height: 1.8;">
+                            <li><strong>Transparent Heuristics:</strong> Discloses rule-based logic without falsified ML claims.</li>
+                            <li><strong>Deficiency Identification:</strong> Flags topics with average quiz scores &lt; 70% as high/medium priority review.</li>
+                            <li><strong>Contextual Action Items:</strong> Prescribes retry quizzes, targeted AI tutor prompts, and links directly to matching uploaded PDF notes.</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="card-icon" style="background:#e0f2fe; color:#0284c7;"><i class="bi bi-bar-chart-line-fill"></i></div>
+                        <h4>Student Analytics Dashboard</h4>
+                        <ul style="padding-left: 20px; font-size: 0.88rem; color: #475569; line-height: 1.8;">
+                            <li><strong>Topic Mastery Bar Chart:</strong> Compares student score percentages across all attempted subjects.</li>
+                            <li><strong>Score Timeline Line Chart:</strong> Tracks learning curve and score trajectories across dates.</li>
+                            <li><strong>Summary Telemetry:</strong> Aggregates total quizzes, overall GPA forecast, and uploaded library assets.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> Module 6 features a transparent recommendation engine that diagnoses weak subject areas and assigns remedial tasks. Module 7 visualizes this data with Chart.js, empowering students to track their academic trajectory over time.
+                </div>
+            </div>
+
+            <!-- SLIDE 10: Conclusion, Testing & Future Scope -->
+            <div class="slide" data-category="Conclusion">
+                <h2 class="slide-title">Technical Validation, Future Scope &amp; Conclusion</h2>
+                <p class="slide-subtitle">Rigorous automated verification and long-term evolutionary roadmap.</p>
+
+                <div class="two-cols">
+                    <div>
+                        <div class="highlight-box" style="border-left-color: var(--success); background:#f0fdf4;">
+                            <h4 style="color:#166534;"><i class="bi bi-check-circle-fill me-1"></i> 100% Automated Test Pass Rate</h4>
+                            <p style="color:#166534;">
+                                <strong>14/14 Pytest tests passing</strong> across user registration, password hashing, ML bounds validation, quiz structure, PyMuPDF extraction, and RAG retrieval.
+                            </p>
+                        </div>
+                        <div class="highlight-box">
+                            <h4>Future Research Directions</h4>
+                            <ul style="padding-left: 18px; font-size: 0.85rem; color: #475569; line-height: 1.6;">
+                                <li>Collaborative filtering ML models once user interaction logs scale.</li>
+                                <li>Audio lecture summarization via local Whisper models.</li>
+                                <li>Multi-modal diagram understanding from textbook images.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="feature-card" style="height: 100%; text-align: center; justify-content: center;">
+                            <i class="bi bi-award-fill text-primary" style="font-size: 3rem; margin-bottom: 12px;"></i>
+                            <h3 style="margin-bottom: 8px;">Project Completed Successfully</h3>
+                            <p style="font-size: 0.92rem; color: var(--gray); margin-bottom: 20px;">
+                                StudyBuddy delivers a fully functional, privacy-first, intermediate college project demonstrating practical mastery of AI, NLP, Machine Learning, and Web Engineering.
+                            </p>
+                            <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">
+                                Thank You! Questions &amp; Discussion
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-panel">
+                    <strong>Speaker Notes:</strong> In conclusion, StudyBuddy is fully functional and validated with 14 automated tests. It combines local AI, RAG, and ML performance prediction in an accessible, open-source architecture. Thank you, and I look forward to your questions.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Slide Footer Controls -->
+        <div class="slide-footer">
+            <div class="d-flex align-items-center gap-3">
+                <span id="slideIndicator">Slide 1 of 10</span>
+                <button class="notes-toggle-btn" id="toggleNotesBtn">
+                    <i class="bi bi-card-text"></i> Speaker Notes
+                </button>
+            </div>
+            <div class="controls">
+                <button class="btn-nav" id="prevBtn" disabled>
+                    <i class="bi bi-chevron-left"></i> Previous
+                </button>
+                <button class="btn-nav" id="nextBtn">
+                    Next <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideIndicator = document.getElementById('slideIndicator');
+        const slideCategory = document.getElementById('slideCategory');
+        const progressBar = document.getElementById('progressBar');
+        const toggleNotesBtn = document.getElementById('toggleNotesBtn');
+        let currentSlide = 0;
+        let showNotes = false;
+
+        function updateSlide() {
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === currentSlide);
+            });
+
+            const activeSlide = slides[currentSlide];
+            slideIndicator.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+            slideCategory.textContent = activeSlide.getAttribute('data-category') || 'StudyBuddy';
+            progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+            nextBtn.innerHTML = (currentSlide === slides.length - 1) ? 'Finish <i class="bi bi-check2"></i>' : 'Next <i class="bi bi-chevron-right"></i>';
+
+            // Update notes visibility
+            document.querySelectorAll('.notes-panel').forEach(n => {
+                n.classList.toggle('visible', showNotes);
+            });
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        // Keyboard navigation (Arrow keys and Space)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < slides.length - 1) {
+                    currentSlide++;
+                    updateSlide();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateSlide();
+                }
+            } else if (e.key.toLowerCase() === 'n') {
+                showNotes = !showNotes;
+                updateSlide();
+            }
+        });
+
+        toggleNotesBtn.addEventListener('click', () => {
+            showNotes = !showNotes;
+            updateSlide();
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>

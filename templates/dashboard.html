@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Overview{% endblock %}
+{% block page_heading %}Welcome, {{ user.full_name or user.username }}! 👋{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <!-- Metric 1: Quizzes Attempted -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card metric-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Quizzes Attempted</div>
+                        <div class="metric-value mt-1" id="dashMetricQuizzes">{{ user.quiz_attempts|length }}</div>
+                    </div>
+                    <div class="p-3 bg-primary-subtle text-primary rounded-circle">
+                        <i class="bi bi-patch-question-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metric 2: Average Score -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card metric-card shadow-sm h-100" style="border-left-color: #10b981;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Average Quiz Score</div>
+                        <div class="metric-value mt-1 text-success" id="dashMetricAvg">
+                            {% if user.quiz_attempts %}
+                                {{ (user.quiz_attempts | map(attribute='score') | sum / user.quiz_attempts|length) | round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="p-3 bg-success-subtle text-success rounded-circle">
+                        <i class="bi bi-trophy-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metric 3: Uploaded Notes -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card metric-card shadow-sm h-100" style="border-left-color: #0284c7;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Study Notes (PDF)</div>
+                        <div class="metric-value mt-1 text-info" id="dashMetricDocs">{{ user.documents|length }}</div>
+                    </div>
+                    <div class="p-3 bg-info-subtle text-info rounded-circle">
+                        <i class="bi bi-file-earmark-pdf-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metric 4: Predicted Grade -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card metric-card shadow-sm h-100" style="border-left-color: #8b5cf6;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Predicted Grade</div>
+                        <div class="metric-value mt-1 text-purple" style="color: #8b5cf6;" id="dashMetricGrade">
+                            {% if user.predictions %}
+                                {{ user.predictions[-1].predicted_grade | round(1) }} <span class="fs-6 text-muted">/ 20</span>
+                            {% else %}
+                                <span class="fs-6 text-muted">Run ML Predictor</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="p-3 rounded-circle" style="background-color: #ede9fe; color: #8b5cf6;">
+                        <i class="bi bi-magic fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body py-3">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="fw-semibold text-muted small"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Quick Study Actions:</span>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('chat.chat_view') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-chat-dots me-1"></i> Ask AI Tutor
+                </a>
+                <a href="{{ url_for('documents.documents_view') }}" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-upload me-1"></i> Upload Notes
+                </a>
+                <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-plus-circle me-1"></i> Generate Quiz
+                </a>
+                <a href="{{ url_for('predict.predict_view') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-graph-up-arrow me-1"></i> Predict Grade
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Topic-wise Mastery -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Topic Mastery (%)</h6>
+                <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-sm btn-light border small">New Quiz</a>
+            </div>
+            <div class="card-body" style="height: 300px; position: relative;">
+                <canvas id="topicsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Learning Progress Timeline -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-graph-up text-primary me-2"></i>Score Progression Over Time</h6>
+                <span class="badge bg-light text-muted border">Quiz Attempts</span>
+            </div>
+            <div class="card-body" style="height: 300px; position: relative;">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Row: Recent Quizzes & Recommended Topics -->
+<div class="row g-4">
+    <!-- Recent Quizzes Table -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history text-primary me-2"></i>Recent Quiz Results</h6>
+                <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-sm btn-link text-decoration-none">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if user.quiz_attempts %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-muted">
+                            <tr>
+                                <th class="ps-3">Quiz</th>
+                                <th>Topic</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                                <th class="text-end pe-3">Review</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for att in user.quiz_attempts[-5:] | reverse %}
+                            <tr>
+                                <td class="ps-3 fw-semibold">{{ att.quiz.title if att.quiz else 'Quiz' }}</td>
+                                <td><span class="badge bg-secondary-subtle text-secondary">{{ att.quiz.topic if att.quiz else 'General' }}</span></td>
+                                <td>
+                                    <span class="fw-bold {% if att.score >= 80 %}text-success{% elif att.score >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                        {{ att.score | round(1) }}%
+                                    </span>
+                                </td>
+                                <td class="small text-muted">{{ att.attempted_at.strftime('%b %d, %H:%M') }}</td>
+                                <td class="text-end pe-3">
+                                    <a href="{{ url_for('quizzes.quiz_result_view', attempt_id=att.id) }}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                        Breakdown
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-card-checklist fs-1 text-secondary"></i>
+                    <p class="mt-2 mb-1">No quizzes attempted yet.</p>
+                    <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-sm btn-primary mt-2">Generate Your First Quiz</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Preview -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Personalized Action Items</h6>
+                <a href="{{ url_for('recommendations.recommendations_view') }}" class="btn btn-sm btn-link text-decoration-none">Details</a>
+            </div>
+            <div class="card-body">
+                <div id="dashRecommendationsList">
+                    <div class="d-flex align-items-start mb-3 p-2 bg-light rounded">
+                        <i class="bi bi-check2-circle text-primary fs-5 me-2 mt-1"></i>
+                        <div>
+                            <div class="fw-semibold small">Diagnostic Assessment</div>
+                            <div class="text-muted small">Generate a quick 5-question quiz to diagnose knowledge gaps.</div>
+                            <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-sm btn-outline-primary mt-1 py-0 px-2 small">Take Quiz</a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3 p-2 bg-light rounded">
+                        <i class="bi bi-file-earmark-arrow-up text-info fs-5 me-2 mt-1"></i>
+                        <div>
+                            <div class="fw-semibold small">Upload Course Materials</div>
+                            <div class="text-muted small">Upload your syllabus or lecture slides to enable semantic search and AI Q&amp;A.</div>
+                            <a href="{{ url_for('documents.documents_view') }}" class="btn btn-sm btn-outline-info mt-1 py-0 px-2 small">Upload Notes</a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start p-2 bg-light rounded">
+                        <i class="bi bi-graph-up-arrow text-success fs-5 me-2 mt-1"></i>
+                        <div>
+                            <div class="fw-semibold small">Predict Final Grade</div>
+                            <div class="text-muted small">Run early performance prediction using the trained Random Forest model.</div>
+                            <a href="{{ url_for('predict.predict_view') }}" class="btn btn-sm btn-outline-success mt-1 py-0 px-2 small">Estimate Grade</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard_charts.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results: {{ attempt.quiz.title if attempt.quiz else 'Quiz' }}{% endblock %}
+{% block page_heading %}Quiz Evaluation &amp; Breakdown{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <!-- Results Scorecard Banner -->
+        <div class="card shadow-sm border-0 mb-4 text-center p-4">
+            <div class="card-body">
+                <div class="mb-3">
+                    {% if attempt.score >= 80 %}
+                        <div class="d-inline-flex p-3 bg-success-subtle text-success rounded-circle mb-2">
+                            <i class="bi bi-award-fill fs-1"></i>
+                        </div>
+                        <h3 class="fw-bold text-success mb-1">Excellent Mastery!</h3>
+                    {% elif attempt.score >= 60 %}
+                        <div class="d-inline-flex p-3 bg-warning-subtle text-warning rounded-circle mb-2">
+                            <i class="bi bi-star-fill fs-1"></i>
+                        </div>
+                        <h3 class="fw-bold text-warning mb-1">Good Effort &mdash; Review Needed</h3>
+                    {% else %}
+                        <div class="d-inline-flex p-3 bg-danger-subtle text-danger rounded-circle mb-2">
+                            <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+                        </div>
+                        <h3 class="fw-bold text-danger mb-1">Needs Concept Revision</h3>
+                    {% endif %}
+                    <p class="text-muted small">Quiz: {{ attempt.quiz.title if attempt.quiz else 'Quiz' }} &bull; Topic: {{ attempt.quiz.topic if attempt.quiz else 'General' }}</p>
+                </div>
+
+                <div class="d-flex justify-content-center gap-4 my-3">
+                    <div class="px-4 py-2 bg-light rounded border">
+                        <div class="text-muted small text-uppercase">Score</div>
+                        <div class="fs-2 fw-bold text-primary">{{ attempt.score | round(1) }}%</div>
+                    </div>
+                    <div class="px-4 py-2 bg-light rounded border">
+                        <div class="text-muted small text-uppercase">Correct Answers</div>
+                        <div class="fs-2 fw-bold text-success">{{ attempt.correct_answers }} / {{ attempt.total_questions }}</div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    {% if attempt.quiz %}
+                    <a href="{{ url_for('quizzes.take_quiz_view', quiz_id=attempt.quiz.id) }}" class="btn btn-primary fw-semibold">
+                        <i class="bi bi-arrow-repeat me-1"></i> Retry This Quiz
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('quizzes.quizzes_view') }}" class="btn btn-outline-secondary fw-semibold">
+                        <i class="bi bi-grid me-1"></i> Return to Quiz Hub
+                    </a>
+                    <a href="{{ url_for('recommendations.recommendations_view') }}" class="btn btn-outline-info fw-semibold">
+                        <i class="bi bi-lightbulb me-1"></i> View Study Advice
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Question by Question Review -->
+        <h5 class="fw-bold mb-3"><i class="bi bi-card-checklist text-primary me-2"></i>Question-by-Question Review</h5>
+
+        {% for detail in attempt.get_details() %}
+        <div class="card shadow-sm border-0 mb-3 {% if detail.is_correct %}border-success{% else %}border-danger{% endif %}" style="border-left-width: 5px !important;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-light text-muted border">Question {{ loop.index }}</span>
+                    {% if detail.is_correct %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i> Correct (+1)</span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle-fill me-1"></i> Incorrect</span>
+                    {% endif %}
+                </div>
+
+                <h6 class="fw-semibold text-dark mb-3">{{ detail.question_text }}</h6>
+
+                <!-- Options -->
+                <div class="row g-2 mb-3">
+                    {% for opt_key, opt_text in detail.options.items() %}
+                    <div class="col-md-6">
+                        <div class="p-2 rounded border small d-flex align-items-center
+                            {% if opt_key == detail.correct_option %}
+                                bg-success-subtle border-success text-success fw-bold
+                            {% elif opt_key == detail.selected_option and not detail.is_correct %}
+                                bg-danger-subtle border-danger text-danger fw-bold
+                            {% else %}
+                                bg-white text-muted
+                            {% endif %}">
+                            <span class="badge {% if opt_key == detail.correct_option %}bg-success text-white{% elif opt_key == detail.selected_option and not detail.is_correct %}bg-danger text-white{% else %}bg-light text-dark border{% endif %} me-2">
+                                {{ opt_key }}
+                            </span>
+                            <span>{{ opt_text }}</span>
+                            {% if opt_key == detail.correct_option %}
+                                <i class="bi bi-check2-circle text-success ms-auto fs-5"></i>
+                            {% elif opt_key == detail.selected_option and not detail.is_correct %}
+                                <i class="bi bi-x-circle text-danger ms-auto fs-5"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Explanation Box -->
+                <div class="p-3 bg-light rounded border-start border-4 border-primary">
+                    <div class="fw-semibold small text-primary mb-1"><i class="bi bi-info-circle-fill me-1"></i> Academic Explanation:</div>
+                    <div class="small text-secondary">{{ detail.explanation }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
